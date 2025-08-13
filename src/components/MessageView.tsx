@@ -1,4 +1,3 @@
-// src/components/MessageView.tsx
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
 
@@ -9,7 +8,6 @@ interface Message {
   created_at: string;
 }
 
-// Add onTitleGenerated to the props
 export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: string; chatTitle: string; onTitleGenerated: () => void; }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')

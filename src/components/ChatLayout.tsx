@@ -1,14 +1,12 @@
-// src/components/ChatLayout.tsx
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { MessageView } from './MessageView'
 import type { Session } from '@supabase/supabase-js'
 
-// ... (interface Chat remains the same)
 interface Chat {
-  id: string;
-  title: string;
-  created_at: string;
+  id: string
+  title: string
+  created_at: string
 }
 
 export function ChatLayout({ session }: { session: Session }) {
@@ -42,22 +40,17 @@ export function ChatLayout({ session }: { session: Session }) {
   }
 
   const handleDeleteChat = async (chatIdToDelete: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevents the chat from being selected when clicking the delete button
-    
+    event.stopPropagation();
     if (window.confirm('Are you sure you want to delete this chat?')) {
       try {
         const { error } = await supabase.functions.invoke('delete-chat', {
           body: { chat_id: chatIdToDelete },
         });
-
         if (error) throw error;
-
-        // Remove the chat from the local state
         setChats(chats.filter(chat => chat.id !== chatIdToDelete));
         if (selectedChatId === chatIdToDelete) {
-          setSelectedChatId(null); // Deselect if the active chat was deleted
+          setSelectedChatId(null);
         }
-
       } catch (error) {
         console.error('Failed to delete chat:', error);
         alert('Could not delete chat.');
@@ -79,7 +72,6 @@ export function ChatLayout({ session }: { session: Session }) {
   return (
     <div className="chat-layout-container">
       <button className="mobile-menu-button" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>☰</button>
-      
       <div className={`chat-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <button onClick={handleCreateChat} style={{ width: '100%', marginBottom: '1rem' }}>+ New Chat</button>
         <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -92,7 +84,6 @@ export function ChatLayout({ session }: { session: Session }) {
         </div>
         <button onClick={handleSignOut} style={{ width: '100%', marginTop: '1rem' }}>Sign Out</button>
       </div>
-
       <div className="chat-main-view">
         {selectedChatId && selectedChat ? (
             <MessageView key={selectedChatId} chatId={selectedChatId} chatTitle={selectedChat.title} onTitleGenerated={fetchChats} />
