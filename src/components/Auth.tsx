@@ -13,7 +13,8 @@ export function Auth() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      alert(error.error_description || error.message)
+      // Corrected line below
+      alert(error.message)
     }
     setLoading(false)
   }
@@ -24,7 +25,8 @@ export function Auth() {
     const { error } = await supabase.auth.signUp({ email, password })
 
     if (error) {
-      alert(error.error_description || error.message)
+      // Corrected line below
+      alert(error.message)
     } else {
       alert('Signup successful! Please check your email to verify.')
     }
