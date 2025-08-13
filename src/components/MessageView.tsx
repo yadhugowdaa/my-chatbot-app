@@ -1,3 +1,4 @@
+// src/components/MessageView.tsx
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
 
@@ -26,14 +27,8 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     setMessages([])
     setLoading(true)
     setBotIsReplying(false)
-
     const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('chat_id', chatId)
-        .order('created_at', { ascending: true })
-
+      const { data, error } = await supabase.from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true })
       if (error) console.error('Error fetching messages:', error)
       else if (data) setMessages(data)
       setLoading(false)
@@ -44,8 +39,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   useEffect(() => {
     if (!botIsReplying) return;
     const pollForReply = async () => {
-      const { data, error } = await supabase
-        .from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true });
+      const { data, error } = await supabase.from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true });
       if (error) {
         console.error('Polling error:', error);
         return;
@@ -62,7 +56,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!newMessage.trim() || botIsReplying) return
-
     const wasNewChat = chatTitle === 'New Chat';
     const userMessageContent = newMessage
     const currentMessages = messages;
@@ -73,7 +66,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     try {
       const { error } = await supabase.functions.invoke('send-message', { body: { chat_id: chatId, message: userMessageContent, chat_title: chatTitle }, })
       if (error) throw error
-      
       if (wasNewChat) {
         setTimeout(() => {
           onTitleGenerated();
@@ -90,14 +82,22 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const handleSummarize = async () => {
     setIsSummarizing(true)
     try {
+      // The 'error' object from a failed invoke call contains the response
       const { data, error } = await supabase.functions.invoke('summarize-chat', {
         body: { chat_id: chatId },
       })
-      if (error) throw error
+      
+      if (error) throw error // Throw the error to be caught by the catch block
+      
+      // If successful, show the summary
       alert(`Conversation Summary:\n\n${data.summary}`)
+      
     } catch (error) {
-      console.error('Error getting summary:', error)
-      alert('Sorry, there was an error generating the summary.')
+      // THIS BLOCK IS MODIFIED FOR BETTER DEBUGGING
+      console.error('Full error object:', error)
+      // The detailed response from our function is inside the 'context' property
+      const errorDetails = error.context ? JSON.stringify(error.context, null, 2) : error.message;
+      alert(`Sorry, there was an error generating the summary.\n\nServer Details:\n${errorDetails}`);
     }
     setIsSummarizing(false)
   }
@@ -114,7 +114,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
           {isSummarizing ? '...' : 'Summarize'}
         </button>
       </div>
-
       <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
          {messages.map((msg) => (
           <div key={msg.id} style={{ margin: '10px 0', display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
