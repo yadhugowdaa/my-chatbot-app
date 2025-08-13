@@ -35,6 +35,7 @@ body {
   border-radius: 8px;
   background: #fff;
   margin: 0 1rem 2rem 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .chat-sidebar {
@@ -47,6 +48,9 @@ body {
 }
 
 .chat-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.75rem 1rem;
   border-radius: 6px;
   cursor: pointer;
@@ -54,6 +58,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 0.5rem;
 }
 
 .chat-list-item:hover {
@@ -63,6 +68,29 @@ body {
 .chat-list-item.selected {
   background-color: var(--brand-primary);
   color: white;
+}
+
+.delete-chat-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  display: none; /* Hidden by default */
+  padding: 0 0.5rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.chat-list-item:hover .delete-chat-button {
+  display: block; /* Show on hover */
+}
+
+.chat-list-item.selected .delete-chat-button {
+  color: white; /* Make it visible on selected item */
+}
+
+.delete-chat-button:hover {
+  color: #ef4444; /* Red on hover */
 }
 
 .chat-main-view {
@@ -115,6 +143,11 @@ body {
   }
   .mobile-menu-button {
     display: block;
+  }
+  .chat-layout-container {
+    margin: 0;
+    height: 100vh;
+    border-radius: 0;
   }
 }
 
