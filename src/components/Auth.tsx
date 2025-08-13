@@ -1,4 +1,3 @@
-// src/components/Auth.tsx
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
