@@ -1,5 +1,5 @@
 // src/components/ClarificationModal.tsx
-import { useState, useEffect, useRef } from 'react'; // 1. useRef is imported
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import Draggable from 'react-draggable';
 
@@ -20,7 +20,7 @@ export function ClarificationModal({ isOpen, onClose, contextMessage }: ModalPro
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
-  const nodeRef = useRef(null); // 2. A ref is created here
+  const nodeRef = useRef(null); 
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +48,10 @@ export function ClarificationModal({ isOpen, onClose, contextMessage }: ModalPro
       const { data, error } = await supabase.functions.invoke('clarify-message', {
         body: { context: contextMessage, question: userQuestion }
       });
+
+      // --- THIS IS THE IMPORTANT DEBUGGING LINE ---
+      console.log("DATA RECEIVED FROM FUNCTION:", data);
+
       if (error) throw error;
       
       setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'bot', content: data.reply }]);
@@ -65,7 +69,6 @@ export function ClarificationModal({ isOpen, onClose, contextMessage }: ModalPro
 
   return (
     <div className="modal-overlay">
-      {/* 3. The nodeRef is passed to the Draggable component and the div */}
       <Draggable nodeRef={nodeRef} handle=".modal-header" bounds="parent">
         <div ref={nodeRef} className="modal-content">
           <button className="modal-close-button" onClick={onClose}>×</button>
