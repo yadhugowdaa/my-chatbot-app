@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
-import { ClarificationModal } from './ClarificationModal' // Import the new Modal
+import { ClarificationModal } from './ClarificationModal' // Ensure this is the Modal component
 
 interface Message {
   id: string;
@@ -16,7 +16,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const [botIsReplying, setBotIsReplying] = useState(false)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
 
-  // New state for the clarification modal
+  // State for the clarification modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clarificationContext, setClarificationContext] = useState('');
 
@@ -25,9 +25,9 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     setIsModalOpen(true);
   }
   
-  // All other functions and hooks remain the same
   const scrollToBottom = () => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }
   useEffect(scrollToBottom, [messages]);
+
   useEffect(() => {
     setMessages([])
     setLoading(true)
@@ -40,6 +40,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     }
     fetchMessages()
   }, [chatId])
+
   useEffect(() => {
     if (!botIsReplying) return;
     const pollForReply = async () => {
@@ -53,6 +54,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     const intervalId = setInterval(pollForReply, 2000);
     return () => clearInterval(intervalId);
   }, [botIsReplying, chatId, messages.length]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!newMessage.trim() || botIsReplying) return
@@ -84,6 +86,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   }
 
   return (
+    // The <> fragment here is important. It ensures the Modal is a sibling to the main chat div, not a child.
     <>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
@@ -111,7 +114,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
           <div ref={messagesEndRef} />
         </div>
 
-        {/* When modal is open, disable the main chat form */}
         <form onSubmit={handleSubmit} className="chat-input-form">
           <fieldset disabled={isModalOpen} style={{border: 'none', padding: 0, margin: 0}}>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -122,6 +124,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
         </form>
       </div>
       
+      {/* The Modal is rendered here, outside the main div, so it can float over everything. */}
       <ClarificationModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
