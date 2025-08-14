@@ -179,7 +179,6 @@ input:focus {
 .message-bubble { padding: 10px 15px; border-radius: 20px; max-width: 70%; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .chat-input-form { padding: 1rem; border-top: 1px solid var(--border-color); background: var(--card-bg); }
 @media (max-width: 768px) {
-  .login-graphic-side { display: none; }
   .login-form-side { width: 100%; background: none; backdrop-filter: none; border: none; }
   .container { padding: 0; }
   .chat-layout-container { height: 100vh; max-height: none; border-radius: 0; border: none; }
