@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
-import { ClarificationDrawer } from './ClarificationDrawer' // Import the new component
+import { ClarificationModal } from './ClarificationModal' // Import the new Modal
 
 interface Message {
   id: string;
@@ -16,16 +16,16 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const [botIsReplying, setBotIsReplying] = useState(false)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
 
-  // New state for the clarification drawer
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  // New state for the clarification modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [clarificationContext, setClarificationContext] = useState('');
 
-  const handleOpenDrawer = (messageContent: string) => {
+  const handleOpenModal = (messageContent: string) => {
     setClarificationContext(messageContent);
-    setIsDrawerOpen(true);
+    setIsModalOpen(true);
   }
-
-  // ... (All other functions and hooks remain the same)
+  
+  // All other functions and hooks remain the same
   const scrollToBottom = () => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }
   useEffect(scrollToBottom, [messages]);
   useEffect(() => {
@@ -93,11 +93,10 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
         <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
           {messages.map((msg) => (
             <div key={msg.id} style={{ margin: '0.5rem 0', display: 'flex', alignItems: 'center', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-              <div className={msg.sender === 'user' ? 'message-bubble-user' : 'message-bubble-bot'} style={{ padding: '10px 15px', borderRadius: '20px', maxWidth: '80%', lineHeight: '1.5' }}>
+              <div className={`message-bubble ${msg.sender === 'user' ? 'message-bubble-user' : 'message-bubble-bot'}`}>
                 {msg.content}
-                {/* Add clarification icon ONLY for bot messages */}
                 {msg.sender === 'bot' && (
-                  <button className="clarification-icon" onClick={() => handleOpenDrawer(msg.content)}>
+                  <button className="clarification-icon" onClick={() => handleOpenModal(msg.content)}>
                     ?
                   </button>
                 )}
@@ -106,26 +105,26 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
           ))}
           {botIsReplying && (
             <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '0.5rem 0' }}>
-              <div className="message-bubble-bot" style={{ padding: '10px 15px', borderRadius: '20px' }}>
-                ...
-              </div>
+              <div className="message-bubble-bot">...</div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
+        {/* When modal is open, disable the main chat form */}
         <form onSubmit={handleSubmit} className="chat-input-form">
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." disabled={botIsReplying} style={{ flex: 1 }} />
-            <button type="submit" disabled={botIsReplying}>Send</button>
-          </div>
+          <fieldset disabled={isModalOpen} style={{border: 'none', padding: 0, margin: 0}}>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." disabled={botIsReplying} style={{ flex: 1 }} />
+              <button type="submit" disabled={botIsReplying}>Send</button>
+            </div>
+          </fieldset>
         </form>
       </div>
       
-      {/* Render the Drawer component */}
-      <ClarificationDrawer 
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+      <ClarificationModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         contextMessage={clarificationContext}
       />
     </>

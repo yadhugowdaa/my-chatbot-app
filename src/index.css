@@ -186,6 +186,7 @@ input:focus {
   .chat-sidebar.open { transform: translateX(0); }
   .mobile-menu-button { display: flex; align-items: center; justify-content: center; position: absolute; top: 1rem; left: 1rem; z-index: 20; width: 40px; height: 40px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50%; padding: 0; }
 /* --- CLARIFICATION DRAWER STYLES --- */
+/* --- CLARIFICATION MODAL STYLES --- */
 .clarification-icon {
   background: none;
   border: none;
@@ -196,6 +197,7 @@ input:focus {
   border-radius: 50%;
   opacity: 0.5;
   transition: opacity 0.2s, background-color 0.2s;
+  font-weight: bold;
 }
 .clarification-icon:hover {
   opacity: 1;
@@ -205,57 +207,62 @@ input:focus {
   opacity: 1;
 }
 
-.drawer-overlay {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 1000;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
 }
 
-.drawer-content {
-  width: 100%;
-  max-width: 450px;
-  height: 100%;
+.modal-content {
+  width: 90%;
+  max-width: 600px;
+  height: 70vh;
   background: var(--card-bg);
-  box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
-  animation: slideIn 0.3s ease-out;
+  border-radius: 1rem;
+  animation: fadeIn 0.3s ease-out;
+  position: relative;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.drawer-close-button {
+.modal-close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 2.5rem;
   color: var(--text-secondary);
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  line-height: 1;
 }
 
-.drawer-header {
-  padding: 1rem;
+.modal-header {
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
 }
-.drawer-header p {
+.modal-header p {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
-.drawer-context {
+.modal-context {
   margin-top: 1rem;
   padding: 0.75rem;
   background-color: var(--page-bg);
@@ -263,9 +270,11 @@ input:focus {
   font-size: 0.9rem;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
+  max-height: 100px;
+  overflow-y: auto;
 }
 
-.drawer-messages {
+.modal-messages {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
