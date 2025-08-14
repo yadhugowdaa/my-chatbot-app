@@ -2,10 +2,15 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { MessageView } from './MessageView'
-import { OnboardingModal } from './OnboardingModal' // Import the new component
+import { OnboardingModal } from './OnboardingModal'
 import type { Session } from '@supabase/supabase-js'
 
-interface Chat { /* ... */ }
+interface Chat {
+  id: string
+  title: string
+  created_at: string
+}
+
 type Theme = 'light' | 'dark'
 
 export function ChatLayout({ session, theme, toggleTheme }: { session: Session, theme: Theme, toggleTheme: () => void }) {
@@ -13,12 +18,18 @@ export function ChatLayout({ session, theme, toggleTheme }: { session: Session, 
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  // New state for the onboarding modal
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  // This is the full fetchChats function
+  const fetchChats = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('chats').select('id, title, created_at').order('created_at', { ascending: false });
+    if (error) console.error('Error fetching chats:', error)
+    else if (data) setChats(data)
+    setLoading(false)
+  }
+
   useEffect(() => {
-    // Check if the user has seen the tutorial before
     const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
     if (!hasSeenTutorial) {
       setShowOnboarding(true);
@@ -27,17 +38,51 @@ export function ChatLayout({ session, theme, toggleTheme }: { session: Session, 
   }, [])
   
   const handleCloseOnboarding = () => {
-    // Set the flag in localStorage and close the modal
     localStorage.setItem('hasSeenTutorial', 'true');
     setShowOnboarding(false);
   }
 
-  // ... (All other functions like fetchChats, handleCreateChat, handleDeleteChat etc. remain exactly the same)
-  const fetchChats = async () => { setLoading(true); const { data, error } = await supabase.from('chats').select('id, title, created_at').order('created_at', { ascending: false }); if (error) console.error('Error fetching chats:', error); else if (data) setChats(data); setLoading(false); }
-  const handleCreateChat = async () => { const user_id = session.user.id; const { data, error } = await supabase.from('chats').insert({ user_id }).select().single(); if (error) console.error('Error creating chat:', error); else if (data) { setChats([data, ...chats]); setSelectedChatId(data.id); setIsSidebarOpen(false); } }
-  const handleDeleteChat = async (chatIdToDelete: string, event: React.MouseEvent) => { event.stopPropagation(); if (window.confirm('Are you sure you want to delete this chat?')) { try { const { error } = await supabase.functions.invoke('delete-chat', { body: { chat_id: chatIdToDelete }, }); if (error) throw error; setChats(chats.filter(chat => chat.id !== chatIdToDelete)); if (selectedChatId === chatIdToDelete) setSelectedChatId(null); } catch (error) { console.error('Failed to delete chat:', error); alert('Could not delete chat.'); } } };
-  const handleSelectChat = (chatId: string) => { setSelectedChatId(chatId); setIsSidebarOpen(false); }
-  const handleSignOut = () => { supabase.auth.signOut() }
+  // This is the full handleCreateChat function
+  const handleCreateChat = async () => {
+    const user_id = session.user.id;
+    const { data, error } = await supabase.from('chats').insert({ user_id }).select().single();
+    if (error) {
+      console.error('Error creating chat:', error);
+    } else if (data) {
+      setChats([data, ...chats]);
+      setSelectedChatId(data.id);
+      setIsSidebarOpen(false);
+    }
+  }
+
+  // This is the full handleDeleteChat function
+  const handleDeleteChat = async (chatIdToDelete: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this chat?')) {
+      try {
+        const { error } = await supabase.functions.invoke('delete-chat', { body: { chat_id: chatIdToDelete } });
+        if (error) throw error;
+        setChats(chats.filter(chat => chat.id !== chatIdToDelete));
+        if (selectedChatId === chatIdToDelete) {
+          setSelectedChatId(null);
+        }
+      } catch (error) {
+        console.error('Failed to delete chat:', error);
+        alert('Could not delete chat.');
+      }
+    }
+  };
+
+  // This is the full handleSelectChat function
+  const handleSelectChat = (chatId: string) => {
+    setSelectedChatId(chatId);
+    setIsSidebarOpen(false);
+  }
+
+  // This is the full handleSignOut function
+  const handleSignOut = () => {
+    supabase.auth.signOut()
+  }
 
   const selectedChat = chats.find(chat => chat.id === selectedChatId);
 
