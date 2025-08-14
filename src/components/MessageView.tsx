@@ -15,7 +15,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const [loading, setLoading] = useState(true)
   const [botIsReplying, setBotIsReplying] = useState(false)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clarificationContext, setClarificationContext] = useState('');
 
@@ -86,12 +85,12 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
 
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
+      <div className="chat-main-view">
+        <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
           <h3 style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chatTitle}</h3>
         </div>
         
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+        <div className="message-list-wrapper">
           {messages.map((msg) => (
             <div key={msg.id} style={{ margin: '0.5rem 0', display: 'flex', alignItems: 'center', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
               <div className={`message-bubble ${msg.sender === 'user' ? 'message-bubble-user' : 'message-bubble-bot'}`}>
