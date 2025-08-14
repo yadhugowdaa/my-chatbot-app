@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
-import { ClarificationModal } from './ClarificationModal' // Ensure this is the Modal component
+import { ClarificationModal } from './ClarificationModal'
 
 interface Message {
   id: string;
@@ -16,7 +16,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const [botIsReplying, setBotIsReplying] = useState(false)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
 
-  // State for the clarification modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clarificationContext, setClarificationContext] = useState('');
 
@@ -86,7 +85,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   }
 
   return (
-    // The <> fragment here is important. It ensures the Modal is a sibling to the main chat div, not a child.
     <>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
@@ -124,7 +122,6 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
         </form>
       </div>
       
-      {/* The Modal is rendered here, outside the main div, so it can float over everything. */}
       <ClarificationModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
