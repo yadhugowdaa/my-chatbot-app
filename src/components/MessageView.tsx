@@ -1,4 +1,3 @@
-// src/components/MessageView.tsx
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
 
@@ -14,13 +13,11 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [botIsReplying, setBotIsReplying] = useState(false)
-  const [isSummarizing, setIsSummarizing] = useState(false)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
@@ -40,10 +37,7 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     if (!botIsReplying) return;
     const pollForReply = async () => {
       const { data, error } = await supabase.from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true });
-      if (error) {
-        console.error('Polling error:', error);
-        return;
-      }
+      if (error) { console.error('Polling error:', error); return; }
       if (data && data.length > messages.length && data[data.length - 1].sender === 'bot') {
         setMessages(data);
         setBotIsReplying(false);
@@ -79,59 +73,35 @@ export function MessageView({ chatId, chatTitle, onTitleGenerated }: { chatId: s
     }
   }
 
-  const handleSummarize = async () => {
-    setIsSummarizing(true)
-    try {
-      // The 'error' object from a failed invoke call contains the response
-      const { data, error } = await supabase.functions.invoke('summarize-chat', {
-        body: { chat_id: chatId },
-      })
-      
-      if (error) throw error // Throw the error to be caught by the catch block
-      
-      // If successful, show the summary
-      alert(`Conversation Summary:\n\n${data.summary}`)
-      
-    } catch (error) {
-      // THIS BLOCK IS MODIFIED FOR BETTER DEBUGGING
-      console.error('Full error object:', error)
-      // The detailed response from our function is inside the 'context' property
-      const errorDetails = error.context ? JSON.stringify(error.context, null, 2) : error.message;
-      alert(`Sorry, there was an error generating the summary.\n\nServer Details:\n${errorDetails}`);
-    }
-    setIsSummarizing(false)
-  }
-
   if (loading) {
     return <div style={{ padding: '20px' }}>Loading messages...</div>
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
         <h3 style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chatTitle}</h3>
-        <button onClick={handleSummarize} disabled={isSummarizing || messages.length < 2} style={{marginLeft: '1rem'}}>
-          {isSummarizing ? '...' : 'Summarize'}
-        </button>
       </div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+      
+      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
          {messages.map((msg) => (
-          <div key={msg.id} style={{ margin: '10px 0', display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-            <div style={{ padding: '10px 15px', borderRadius: '20px', backgroundColor: msg.sender === 'user' ? 'var(--user-bubble-bg)' : 'var(--bot-bubble-bg)', color: msg.sender === 'user' ? 'white' : 'black', maxWidth: '70%', }}>
+          <div key={msg.id} style={{ margin: '0.5rem 0', display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div className={msg.sender === 'user' ? 'message-bubble-user' : 'message-bubble-bot'} style={{ padding: '10px 15px', borderRadius: '20px', maxWidth: '70%', lineHeight: '1.5' }}>
               {msg.content}
             </div>
           </div>
         ))}
         {botIsReplying && (
-          <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '10px 0' }}>
-            <div style={{ padding: '10px 15px', borderRadius: '20px', backgroundColor: 'var(--bot-bubble-bg)' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '0.5rem 0' }}>
+            <div className="message-bubble-bot" style={{ padding: '10px 15px', borderRadius: '20px' }}>
               ...
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSubmit} style={{ padding: '1rem', borderTop: '1px solid var(--border-color)', background: '#fff' }}>
+
+      <form onSubmit={handleSubmit} className="chat-input-form">
         <div style={{ display: 'flex', gap: '10px' }}>
           <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." disabled={botIsReplying} style={{ flex: 1 }} />
           <button type="submit" disabled={botIsReplying}>Send</button>
