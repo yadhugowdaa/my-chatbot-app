@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../supabaseClient'
+// src/components/ClarificationModal.tsx
+import { useState, useEffect, useRef } from 'react'; // 1. useRef is imported
+import { supabase } from '../supabaseClient';
 import Draggable from 'react-draggable';
 
 interface ClarificationMessage {
@@ -19,9 +20,10 @@ export function ClarificationModal({ isOpen, onClose, contextMessage }: ModalPro
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const nodeRef = useRef(null); // 2. A ref is created here
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   useEffect(scrollToBottom, [messages]);
 
@@ -57,12 +59,15 @@ export function ClarificationModal({ isOpen, onClose, contextMessage }: ModalPro
     setIsLoading(false);
   }
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="modal-overlay">
-      <Draggable handle=".modal-header" bounds="parent">
-        <div className="modal-content">
+      {/* 3. The nodeRef is passed to the Draggable component and the div */}
+      <Draggable nodeRef={nodeRef} handle=".modal-header" bounds="parent">
+        <div ref={nodeRef} className="modal-content">
           <button className="modal-close-button" onClick={onClose}>×</button>
           <div className="modal-header">
             <p>Clarification Thread</p>
