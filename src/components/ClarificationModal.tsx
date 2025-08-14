@@ -1,6 +1,6 @@
-// src/components/ClarificationModal.tsx
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
+import Draggable from 'react-draggable';
 
 interface ClarificationMessage {
   id: number;
@@ -60,37 +60,39 @@ export function ClarificationModal({ isOpen, onClose, contextMessage }: ModalPro
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-button" onClick={onClose}>×</button>
-        <div className="modal-header">
-          <p>Clarification Thread</p>
-          <div className="modal-context">
-            <strong>Original Message:</strong> "{contextMessage}"
+    <div className="modal-overlay">
+      <Draggable handle=".modal-header" bounds="parent">
+        <div className="modal-content">
+          <button className="modal-close-button" onClick={onClose}>×</button>
+          <div className="modal-header">
+            <p>Clarification Thread</p>
+            <div className="modal-context">
+              <strong>Original Message:</strong> "{contextMessage}"
+            </div>
           </div>
-        </div>
-        <div className="modal-messages">
-          {messages.map(msg => (
-            <div key={msg.id} style={{ margin: '0.5rem 0', display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-               <div className={msg.sender === 'user' ? 'message-bubble-user' : 'message-bubble-bot'}>
+          <div className="modal-messages">
+            {messages.map(msg => (
+              <div key={msg.id} style={{ margin: '0.5rem 0', display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+               <div className={`message-bubble ${msg.sender === 'user' ? 'message-bubble-user' : 'message-bubble-bot'}`}>
                  {msg.content}
                </div>
-            </div>
-          ))}
+              </div>
+            ))}
            {isLoading && 
              <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '0.5rem 0' }}>
                <div className="message-bubble-bot">...</div>
              </div>
            }
            <div ref={messagesEndRef} />
-        </div>
-        <form onSubmit={handleSubmit} className="chat-input-form">
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask a question..." disabled={isLoading} autoFocus />
-            <button type="submit" disabled={isLoading}>Ask</button>
           </div>
-        </form>
-      </div>
+          <form onSubmit={handleSubmit} className="chat-input-form">
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask a question..." disabled={isLoading} autoFocus />
+              <button type="submit" disabled={isLoading}>Ask</button>
+            </div>
+          </form>
+        </div>
+      </Draggable>
     </div>
   );
 }
